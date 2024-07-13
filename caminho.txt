@@ -1,0 +1,1 @@
+cd onedrive/documentos/faculdade/sd-projeto/server
