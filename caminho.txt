@@ -1,1 +1,3 @@
-cd onedrive/documentos/faculdade/sd-projeto/server
+cd onedrive/documentos/faculdade/sd-projeto/manager/manager.py
+cd onedrive/documentos/faculdade/sd-projeto/server_1/server_1.py
+cd onedrive/documentos/faculdade/sd-projeto/server_2/server_2.py
