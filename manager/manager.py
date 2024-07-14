@@ -6,10 +6,13 @@ SERVIDORES = [
   ('127.0.0.1', 65434)
 ]
 
-def escolher_servidores():
-  principal = random.choice(SERVIDORES)
-  replica = random.choice([s for s in SERVIDORES if s != principal])
-  return principal, replica
+def escolher_servidor_cliente():
+  servidor = random.choice(SERVIDORES)
+  return servidor
+
+def escolher_servidor_backup(servidor):
+  servidor_backup = random.choice([s for s in SERVIDORES if s != servidor])
+  return servidor_backup
 
 def iniciar_manager():
   server_port = 65432
@@ -24,8 +27,8 @@ def iniciar_manager():
     connection_socket, addr = manager_socket.accept()
 
     # Escolhe o servidor
-    principal, replica = escolher_servidores()
-    response = f'{principal[0]}:{principal[1]}:{replica[0]}:{replica[1]}'
+    servidor = escolher_servidor_cliente()
+    response = f'{servidor[0]}:{servidor[1]}'
     connection_socket.send(response.encode())
 
     connection_socket.close()

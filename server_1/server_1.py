@@ -5,6 +5,18 @@ def copiar_arquivo(arquivo, conteudo):
   with open(arquivo, 'wb') as novo_arquivo:
     novo_arquivo.write(conteudo)
 
+def conectar_manager():
+  manager_name = '127.0.0.1'                            # Nome do Manager
+  manager_port = 65432                                  # Nome da Porta
+  manager_socket = socket(AF_INET, SOCK_STREAM)         # Socket TCP
+  manager_socket.connect((manager_name, manager_port))  # Conecta Socket ao Manager
+
+  response = manager_socket.recv(1024).decode()         # Recebe qual servidor será usado
+  manager_socket.close()
+
+  principal_name, principal_port = response.split(':')
+  return (principal_name, int(principal_port))
+
 def iniciar_servidor():
   server_port = 65433                            # Porta do servidor
   server_socket = socket(AF_INET, SOCK_STREAM)   # Socket TCP
