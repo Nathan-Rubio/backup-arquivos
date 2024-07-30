@@ -4,12 +4,26 @@ import sys
 sys.path.append("..")
 from config import MANAGER, SERVIDORES
 
+# assign size
+size = 0
+ 
+# assign folder path
+Folderpath = os.path
+ 
+# get size
+for path, dirs, files in os.walk(Folderpath):
+    for f in files:
+        fp = os.path.join(path, f)
+        size += os.stat(fp).st_size
+
+print(size)
+
 # Copia o arquivo no diretório
 def copiar_arquivo(arquivo, conteudo):
   with open(arquivo, 'wb') as novo_arquivo:
     novo_arquivo.write(conteudo)
 
-# Le o arquivo e o envia ao socket
+# Lê o arquivo e o envia ao socket
 def ler_arquivo(PATH, socket):
   with open(PATH, 'rb') as file:
     while True:
@@ -36,8 +50,8 @@ def conectar_manager(server_name, server_port):
     manager_socket = socket(AF_INET, SOCK_STREAM)  # Socket TCP
     manager_socket.connect(MANAGER)                # Conecta Socket ao Manager
 
-    manager_socket.send('SERVIDOR'.encode())              # Envia uma confirmação que se trata de um servidor ao manager
-    response = manager_socket.recv(1024).decode()         # Recebe qual servidor será usado
+    manager_socket.send('SERVIDOR'.encode())       # Envia uma confirmação que se trata de um servidor ao manager
+    response = manager_socket.recv(1024).decode()  # Recebe qual servidor será usado
     if response == 'CONFIRMADO':
       manager_socket.send(f'{server_name}:{server_port}'.encode())
       response = manager_socket.recv(1024).decode()
@@ -63,8 +77,9 @@ def conectar_servidor(server_name, server_port):
 
 def iniciar_servidor():
   # ESPECÍFICO PARA CADA SERVIDOR #
-  server_name = SERVIDORES[0][0]
-  server_port = SERVIDORES[0][1]
+  server_number = 0
+  server_name = SERVIDORES[server_number][0]
+  server_port = SERVIDORES[server_number][1]
   #################################
 
   server_socket = socket(AF_INET, SOCK_STREAM)   
