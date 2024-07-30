@@ -4,19 +4,22 @@ import sys
 sys.path.append("..")
 from config import MANAGER, SERVIDORES
 
-# assign size
-size = 0
- 
-# assign folder path
-Folderpath = os.path
- 
-# get size
-for path, dirs, files in os.walk(Folderpath):
-    for f in files:
-        fp = os.path.join(path, f)
-        size += os.stat(fp).st_size
+# Retorna o tamanho do diretório
+def retornaTamanho():
+  # Inicializa o tamanho
+  size = 0
+  
+  # Diretório raiz do servidor
+  Folderpath = os.path
+  
+  # Passo por todos os arquivos no diretório somando o tamanho de cada arquivo
+  for path, files in os.walk(Folderpath):
+      for f in files:
+          fp = os.path.join(path, f)
+          size += os.stat(fp).st_size
 
-print(size)
+  # Retorna o tamanho
+  return size
 
 # Copia o arquivo no diretório
 def copiar_arquivo(arquivo, conteudo):
@@ -44,17 +47,17 @@ def receber_arquivo(socket):
     dados_recebidos += dados
   return dados_recebidos
 
-# Conecta o Servidor ao manager
+# Conecta o Servidor ao manager para receber o Servidor de Backup
 def conectar_manager(server_name, server_port):
   try:
     manager_socket = socket(AF_INET, SOCK_STREAM)  # Socket TCP
     manager_socket.connect(MANAGER)                # Conecta Socket ao Manager
 
     manager_socket.send('SERVIDOR'.encode())       # Envia uma confirmação que se trata de um servidor ao manager
-    response = manager_socket.recv(1024).decode()  # Recebe qual servidor será usado
+    response = manager_socket.recv(1024).decode()  # Recebe a resposta do servidor
     if response == 'CONFIRMADO':
-      manager_socket.send(f'{server_name}:{server_port}'.encode())
-      response = manager_socket.recv(1024).decode()
+      manager_socket.send(f'{server_name}:{server_port}'.encode())  # Envia os dados do servidor
+      response = manager_socket.recv(1024).decode()                 # Recebe os dados do servidor backup
       manager_socket.close()
     else:
       print(f'Erro na resposta: {response}')
@@ -97,6 +100,10 @@ def iniciar_servidor():
     print(f'MENSAGEM: {identificacao_mensagem}')
     identificacao, file_name = identificacao_mensagem.split('::')
     print(f'IDENTIFICAÇÃO: {identificacao}')
+
+    if identificacao == 'MANAGER':
+      tamanho = retornaTamanho()
+      connection_socket.send(tamanho)
 
     # Avisa que está pronto para receber o arquivo
     connection_socket.send(b"READY")
