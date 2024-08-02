@@ -10,10 +10,10 @@ def retornaTamanho():
   size = 0
   
   # Diretório raiz do servidor
-  Folderpath = os.path
+  Folderpath = './'
   
   # Passo por todos os arquivos no diretório somando o tamanho de cada arquivo
-  for path, files in os.walk(Folderpath):
+  for path, dirs, files in os.walk(Folderpath):
       for f in files:
           fp = os.path.join(path, f)
           size += os.stat(fp).st_size
@@ -95,15 +95,20 @@ def iniciar_servidor():
     # Aceita a conexão
     connection_socket, addr = server_socket.accept()
 
-    # Identifica se trata-se de um cliente ou um servidor e também o nome do arquivo
+    # Tentará primeiramente verificar se trata de um manager, caso sim, retorna apenas o tamanho do diretório e volta o loop ao início
     identificacao_mensagem = connection_socket.recv(1024).decode()
-    print(f'MENSAGEM: {identificacao_mensagem}')
+
+    if identificacao_mensagem == 'MANAGER':
+      tamanho = retornaTamanho()
+      print(f'Tamanho do diretório: {tamanho}')
+      connection_socket.send(str(tamanho).encode())
+      connection_socket.close()
+      continue
+
+    # Identifica se trata-se de um cliente ou um servidor e também o nome do arquivo
     identificacao, file_name = identificacao_mensagem.split('::')
     print(f'IDENTIFICAÇÃO: {identificacao}')
-
-    if identificacao == 'MANAGER':
-      tamanho = retornaTamanho()
-      connection_socket.send(tamanho)
+    print(f'ARQUIVO: {file_name}')
 
     # Avisa que está pronto para receber o arquivo
     connection_socket.send(b"READY")

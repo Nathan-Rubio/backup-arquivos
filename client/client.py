@@ -25,11 +25,11 @@ def ler_arquivo(PATH, client_socket):
   
 def conectar_manager():
   try:
-    manager_socket = socket(AF_INET, SOCK_STREAM)         # Socket TCP
-    manager_socket.connect(MANAGER)  # Conecta Socket ao Manager
+    manager_socket = socket(AF_INET, SOCK_STREAM) # Socket TCP
+    manager_socket.connect(MANAGER)               # Conecta Socket ao Manager
 
-    manager_socket.send('CLIENTE'.encode())               # Envia uma confirmação que se trata de um cliente ao manager
-    response = manager_socket.recv(1024).decode()         # Recebe qual servidor será usado
+    manager_socket.send('CLIENTE'.encode())       # Envia uma confirmação que se trata de um cliente ao manager
+    response = manager_socket.recv(1024).decode() # Recebe qual servidor será usado
     manager_socket.close()
 
     principal_name, principal_port = response.split(':')
@@ -76,7 +76,7 @@ def iniciar_cliente():
   if response.decode() == 'ENVIO CONCLUIDO':
     print(response.decode())
   else:
-    print('ERRO')
+    print('ERRO NO ENVIO')
 
   client_socket.close()
 

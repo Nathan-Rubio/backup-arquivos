@@ -1,18 +1,46 @@
 from socket import *
-import random
 import sys
 sys.path.append("..")
 from config import MANAGER, SERVIDORES
 
+
+def retorna_tamanho_servidor(server):
+   server_ip, server_port = server
+   try:
+      server_socket = socket(AF_INET, SOCK_STREAM)
+      server_socket.connect((server_ip, server_port))
+      server_socket.send('MANAGER'.encode())
+      tamanho = int(server_socket.recv(1024).decode())
+      print(f'Tamanho do Servidor {server_ip} - {tamanho}')
+      server_socket.close()
+      return tamanho
+   except Exception as e:
+      print(f'Erro ao obter uso de armazenamento do servidor {server}: {e}')
+      return None
+
+
 # Escolhe o servidor para o cliente
 def escolher_servidor_cliente():
-  servidor = random.choice(SERVIDORES)
-  return servidor
+  try:
+    tamanho_servidores = {}
+    for server in SERVIDORES:
+      tamanho = retorna_tamanho_servidor(server)
+      if tamanho is not None:
+        tamanho_servidores[server] = tamanho
+    
+    servidor = min(tamanho_servidores, key=tamanho_servidores.get)
+    return servidor
+  except Exception as e:
+     print(f'Erro na escolha do Servidor: {e}')
+     return None
+
 
 # Escolhe o servidor para o backup
 def escolher_servidor_backup(servidor_principal):
   servidores_disponiveis = [s for s in SERVIDORES if s != servidor_principal]
-  servidor_backup = random.choice(servidores_disponiveis)
+  tamanho_servidores = {server: retorna_tamanho_servidor(server) for server in servidores_disponiveis}
+  servidor_backup = min(tamanho_servidores, key=tamanho_servidores.get)
+  print(f'Servidor Escolhido para Backup: {servidor_backup}')
   return servidor_backup
 
 
@@ -22,7 +50,7 @@ def iniciar_manager():
   manager_socket.bind(MANAGER)
   manager_socket.listen()
 
-  print('Manager is ready to receive')
+  print('Manager Pronto')
 
   while True:
     try:
@@ -50,6 +78,7 @@ def iniciar_manager():
       connection_socket.close()
     except Exception as e:
         print(f"Erro no manager: {e}")
+        break
 
 if __name__ == '__main__':
   iniciar_manager()
