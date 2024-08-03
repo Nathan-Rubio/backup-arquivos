@@ -1,21 +1,33 @@
 from socket import *
 import sys
+import time
 sys.path.append("..")
 from config import MANAGER, SERVIDORES
 
 # Função para obter o tamanho do servidor
-def retorna_tamanho_servidor(server):
+def retorna_tamanho_servidor(server, retries=3, timeout=5):
   server_ip, server_port = server
   try:
-    with socket(AF_INET, SOCK_STREAM) as server_socket:
-      server_socket.connect((server_ip, server_port))
-      server_socket.send('MANAGER'.encode())                # Identifica que se trata do manager ao servidor
-      tamanho = int(server_socket.recv(1024).decode())      # Obtém o tamanho do diretório do servidor
-      print(f'Tamanho do Servidor {server_ip} - {tamanho}')
-      return tamanho
+    for attempt in range(retries):
+      try:
+        server_socket = socket(AF_INET, SOCK_STREAM)
+        server_socket.settimeout(timeout)
+        server_socket.connect((server_ip, server_port))
+        server_socket.send('MANAGER'.encode())                # Identifica que se trata do manager ao servidor
+        tamanho = int(server_socket.recv(1024).decode())      # Obtém o tamanho do diretório do servidor
+        print(f'Tamanho do Servidor {server_ip} - {tamanho}')
+        server_socket.close()
+        return tamanho
+      except timeout:
+        print(f'Timeout ao tentar conectar ao servidor {server_ip}, tentativa {attempt + 1} de {retries}')
+        time.sleep(1)  # Espera um segundo antes de tentar novamente
+      except Exception as e:
+        print(f'Erro ao tentar conectar ao servidor {server_ip}, tentativa {attempt + 1} de {retries}: {e}')
+    return None
   except Exception as e:
     print(f'Erro ao obter uso de armazenamento do servidor {server}: {e}')
     return None
+
 
 # Função para escolher o servidor com o menor uso de armazenamento
 def escolher_servidor(servidores):

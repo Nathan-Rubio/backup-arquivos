@@ -1,6 +1,7 @@
 from socket import *
 import os
 import sys
+from threading import Lock
 sys.path.append("..")
 from config import MANAGER, SERVIDORES
 
@@ -97,50 +98,52 @@ def iniciar_servidor():
 
   server_socket = socket(AF_INET, SOCK_STREAM)   
   server_socket.bind((server_name, server_port))
-  server_socket.listen()                         
+  server_socket.listen()
+  lock = Lock() # Inicia o Lock, impedindo que o sistema se conecte com novas conexões                  
 
   print('Servidor Pronto')
 
   while True:
     connection_socket, addr = server_socket.accept()
 
-    try:
-      # Tentará primeiramente verificar se trata de um manager, caso sim, retorna apenas o tamanho do diretório e volta o loop ao início
-      identificacao_mensagem = connection_socket.recv(1024).decode()
+    # Tentará primeiramente verificar se trata de um manager, caso sim, retorna apenas o tamanho do diretório e volta o loop ao início
+    identificacao_mensagem = connection_socket.recv(1024).decode()
 
-      if identificacao_mensagem == 'MANAGER':
-        tamanho = retornaTamanho()
-        print(f'Tamanho do diretório: {tamanho}')
-        connection_socket.send(str(tamanho).encode())
-        continue
+    if identificacao_mensagem == 'MANAGER':
+      tamanho = retornaTamanho()
+      print(f'Tamanho do diretório: {tamanho}')
+      connection_socket.send(str(tamanho).encode())
+      continue
 
-      # Identifica se trata-se de um cliente ou um servidor e também o nome do arquivo
-      identificacao, file_name = identificacao_mensagem.split('::')
-      print(f'IDENTIFICAÇÃO: {identificacao}')
-      print(f'ARQUIVO: {file_name}')
+    with lock: # Inicia o Lock
+      try:
+        # Identifica se trata-se de um cliente ou um servidor e também o nome do arquivo
+        identificacao, file_name = identificacao_mensagem.split('::')
+        print(f'IDENTIFICAÇÃO: {identificacao}')
+        print(f'ARQUIVO: {file_name}')
 
-      connection_socket.send(b"READY")                     # Avisa que está pronto para receber o arquivo
-      dados_recebidos = receber_arquivo(connection_socket) # Recebe o arquivo
-      novo_arquivo_path = os.path.join('./', file_name)    # Cria um novo caminho para o arquivo
-      copiar_arquivo(novo_arquivo_path, dados_recebidos)   # Copia o arquivo neste caminho
+        connection_socket.send(b"READY")                     # Avisa que está pronto para receber o arquivo
+        dados_recebidos = receber_arquivo(connection_socket) # Recebe o arquivo
+        novo_arquivo_path = os.path.join('./', file_name)    # Cria um novo caminho para o arquivo
+        copiar_arquivo(novo_arquivo_path, dados_recebidos)   # Copia o arquivo neste caminho
 
-      # Caso se trate de um cliente, requisita outro servidor para servir de backup ao manager
-      if identificacao == 'CLIENTE':
-        servidor_backup = conectar_manager(server_name, server_port)
-        print(f'Servidor Backup escolhido: {servidor_backup[0]} - Porta: {servidor_backup[1]}\n')
+        # Caso se trate de um cliente, requisita outro servidor para servir de backup ao manager
+        if identificacao == 'CLIENTE':
+          servidor_backup = conectar_manager(server_name, server_port)
+          print(f'Servidor Backup escolhido: {servidor_backup[0]} - Porta: {servidor_backup[1]}\n')
 
-        server_backup_socket = conectar_servidor(servidor_backup[0], servidor_backup[1]) # Conecta-se com o servidor backup
-        server_backup_socket.send(f"SERVIDOR::{file_name}".encode())                     # Envia o nome do arquivo e que se trata de outro servidor
-        response = server_backup_socket.recv(1024)                                       # Obtém resposta do outro servidor
+          server_backup_socket = conectar_servidor(servidor_backup[0], servidor_backup[1]) # Conecta-se com o servidor backup
+          server_backup_socket.send(f"SERVIDOR::{file_name}".encode())                     # Envia o nome do arquivo e que se trata de outro servidor
+          response = server_backup_socket.recv(1024)                                       # Obtém resposta do outro servidor
 
-        if response.decode() == 'READY':
-          ler_arquivo(novo_arquivo_path, server_backup_socket) # Lê o arquivo para o Servidor Backup quando ele estiver pronto
+          if response.decode() == 'READY':
+            ler_arquivo(novo_arquivo_path, server_backup_socket) # Lê o arquivo para o Servidor Backup quando ele estiver pronto
 
-        connection_socket.send(b"ENVIO CONCLUIDO") # Envia uma confirmação de envio ao cliente
-    except Exception as e:
-      print(f'Erro no servidor: {e}')
-    finally:
-      connection_socket.close()
+          connection_socket.send(b"ENVIO CONCLUIDO") # Envia uma confirmação de envio ao cliente
+      except Exception as e:
+        print(f'Erro no servidor: {e}')
+      finally:
+        connection_socket.close()
 
 
 if __name__ == '__main__':
