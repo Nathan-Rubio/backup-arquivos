@@ -3,14 +3,14 @@ import sys
 sys.path.append("..")
 from config import MANAGER
 
-TEXT_PATH = './text.txt'
-IMAGE_PATH = './image.png'
-BOOK_PATH = './book.pdf'
+TEXT_PATH = './texto.txt'
+IMAGE_PATH = './imagem.png'
+BOOK_PATH = './livro.pdf'
 
 FILE_OPTIONS = {
-  'a': ('text.txt', TEXT_PATH),
-  'b': ('image.png', IMAGE_PATH),
-  'c': ('book.pdf', BOOK_PATH)
+  'texto': ('texto.txt', TEXT_PATH),
+  'imagem': ('imagem.png', IMAGE_PATH),
+  'livro': ('livro.pdf', BOOK_PATH)
 }
 
 def ler_arquivo(PATH, client_socket):
@@ -53,15 +53,15 @@ def iniciar_cliente():
 
   client_socket = conectar_servidor(servidor_principal[0], servidor_principal[1])
 
-  print('Escolha qual arquivo será enviado ao servidor:\n\nA - Arquivo txt\nB - imagem jpg\nC - Livro pdf\n\n')
-  opcao = input('Digite a letra para selecionar a opção(Maiúsculo ou minúsculo): ').lower()
+  print('Digite o nome do arquivo desejado (Não é necessário adicionar o .tipo de arquivo, apenas o nome):\n\n1 - texto\n2 - imagem\n3 - livro\n\n')
+  opcao = input('Digite o nome (Maiúsculo ou minúsculo): ').lower()
 
-  if opcao in FILE_OPTIONS:
-    file_name, file_path = FILE_OPTIONS[opcao]
-    print(f'{file_name} selecionado')
-  else:
+  while opcao not in FILE_OPTIONS:
     print(f'Opção Inválida: {opcao}')
-    return
+    opcao = input('Digite o nome (Maiúsculo ou minúsculo): ').lower()
+
+  file_name, file_path = FILE_OPTIONS[opcao]
+  print(f'{file_name} selecionado')
 
   # Envia o nome do arquivo e que se trata de um cliente
   client_socket.send(f"CLIENTE::{file_name}".encode())
