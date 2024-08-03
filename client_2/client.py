@@ -71,7 +71,7 @@ def iniciar_cliente():
   if not client_socket:
     print('Erro ao conectar com o servidor')
 
-  print('Digite o nome do arquivo desejado (Não é necessário adicionar o .tipo de arquivo, apenas o nome):\n\n1 - texto\n2 - imagem\n3 - livro\n\n')
+  print('Digite o nome do arquivo desejado (Não é necessário adicionar o .tipo de arquivo, apenas o nome):\n\n1 - codigo-javascript\n2 - imagem-basketball\n3 - musica\n\n')
   opcao = input('Digite o nome (Maiúsculo ou minúsculo): ').lower()
 
   while opcao not in FILE_OPTIONS:

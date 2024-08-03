@@ -91,7 +91,7 @@ def conectar_servidor(server_name, server_port):
 # Função Principal de Servidor
 def iniciar_servidor():
   # ESPECÍFICO PARA CADA SERVIDOR #
-  server_number = 0
+  server_number = 2
   server_name = SERVIDORES[server_number][0]
   server_port = SERVIDORES[server_number][1]
   #################################
