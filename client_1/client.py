@@ -3,8 +3,8 @@ import sys
 sys.path.append("..")
 from config import MANAGER
 
-FILE_1 = 'texto.txt'
-FILE_2 = 'imagem.png'
+FILE_1 = 'texto1.txt'
+FILE_2 = 'imagem1.jpg'
 FILE_3 = 'livro.pdf'
 
 FILE_OPTIONS = {

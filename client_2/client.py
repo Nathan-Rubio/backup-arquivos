@@ -3,14 +3,14 @@ import sys
 sys.path.append("..")
 from config import MANAGER
 
-FILE_1 = 'codigo.js'
-FILE_2 = 'imagem-basketball.png'
+FILE_1 = 'texto2.txt'
+FILE_2 = 'imagem2.jpg'
 FILE_3 = 'musica.mp3'
 
 FILE_OPTIONS = {
-  'codigo-javascript': (FILE_1, ('./' + FILE_1)),
-  'imagem-basketball': (FILE_2, ('./' + FILE_2)),
-  'musica'           : (FILE_3, ('./' + FILE_3))
+  'texto'  : (FILE_1, ('./' + FILE_1)),
+  'imagem' : (FILE_2, ('./' + FILE_2)),
+  'musica' : (FILE_3, ('./' + FILE_3))
 }
 
 # Função para ler e enviar arquivo em partes
