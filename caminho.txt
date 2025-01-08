@@ -1,7 +1,0 @@
-cd onedrive/documentos/faculdade/sd-projeto/manager
-cd onedrive/documentos/faculdade/sd-projeto/client_1
-cd onedrive/documentos/faculdade/sd-projeto/client_2
-cd onedrive/documentos/faculdade/sd-projeto/server_1
-cd onedrive/documentos/faculdade/sd-projeto/server_2
-cd onedrive/documentos/faculdade/sd-projeto/server_3
-cd onedrive/documentos/faculdade/sd-projeto/server_4
