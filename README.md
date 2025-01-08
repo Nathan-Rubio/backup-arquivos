@@ -1,4 +1,4 @@
-# PROJETO SISTEMA DISTRIBUÍDOS
+# BACKUP DE ARQUIVOS
 Este projeto implementa um sistema distribuído para backups de arquivos com
 suporte a replicação de conteúdo. O sistema é composto por um gerenciador
 (manager) e vários servidores (4 implementados inicialmente) que armazenam
